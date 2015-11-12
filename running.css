@@ -1,0 +1,89 @@
+body {
+	background: #000000 url("bckg.jpeg") no-repeat right bottom;
+}
+
+html, body {height: 100%;}
+#kontejner {min-height: 100%;}
+#obsah {padding-bottom: 100px;}
+
+
+h1 {
+	border: 1px solid yellow;
+   	outline: orange solid thick;
+	color: #ffff33;
+	text-align: center;
+	font-size: 25px;
+}
+
+table, td, th {
+	border: 1px solid #ffcc33;
+	width: 20%;
+	text-align: center;
+	color: #ffff33; 
+	padding-top: 2px;
+        padding-bottom: 2px;
+	margin: 10px;
+}
+
+th {
+	font-size: 1.1em;
+	text-align: center;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: #ffcc33;
+	color: black;	
+}
+a:link {
+	color: #ffff33
+}
+a:visited {
+	color: #ffcc33
+}
+a:active {
+	color: #ffff33
+}
+a:hover {
+        color: yellow;
+	background-color: #26261e;
+}
+
+.tabulkyvedlesebe {
+	float: left;
+}
+
+.tabulkadole {
+        clear: both;
+}
+
+.hornitabulka {
+	clear: both;
+	width: 100%;
+	margin-bottom: 0px;
+}
+
+div.centered 
+{
+    text-align: center;
+}
+div.centered table 
+{
+    margin: 0 auto; 
+    text-align: left;
+}
+
+.tabulkavypis {
+        margin-left: auto;
+	margin-right: auto;
+	border: 1px solid #ffcc33;
+        width: 50%;
+        text-align: center;
+        color: #ffff33;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        margin: 10px;
+}
+
+.hlavickatabulky a:link, .hlavickatabulky a:visited, .hlavickatabulky a:hover, .hlavickatabulky a:active {     
+	color: black;   
+	background-color: #ffcc33;
+ }
