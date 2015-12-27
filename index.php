@@ -188,27 +188,27 @@ while ($ROW = $STATS1->fetch_assoc())
 	$DATA[] = $ROW;
 }
 $colNames = array_keys(reset($DATA));
-echo "<tr><td style=\"width:40%\"></td>";
+echo "<tr><td style=\"width:30%\"></td>";
 foreach ($DATA as $ROK) 
 {
 	echo "<td style=\"width:10%\"> ".$ROK["Rok"]."</td>";
 }
-echo "</tr><tr><td style=\"width:40%\">Celkem kilometrů</td>";
+echo "</tr><tr><td style=\"width:30%\">Celkem kilometrů</td>";
 foreach ($DATA as $KM)
 {
         echo "<td style=\"width:10%\"> ".$KM["Distance"]."</td>";
 }
-echo "</tr><tr><td style=\"width:40%\">Celkem hodin</td>";
+echo "</tr><tr><td style=\"width:30%\">Celkem hodin</td>";
 foreach ($DATA as $HODIN)
 {
         echo "<td style=\"width:10%\"> ".$HODIN["Hours"]."</td>";
 }
-echo "</tr><tr><td style=\"width:40%\">Průměrná délka běhu</td>";
+echo "</tr><tr><td style=\"width:30%\">Průměrná délka běhu</td>";
 foreach ($DATA as $DELKA)
 {
         echo "<td style=\"width:10%\"> ".$DELKA["AvgDistance"]."</td>";
 }
-echo "</tr><tr><td style=\"width:40%\">Průměrné tempo</td>";
+echo "</tr><tr><td style=\"width:30%\">Průměrné tempo</td>";
 foreach ($DATA as $SEC)
 {
         $TEMPO = Pace($SEC["SecForPace"],$SEC["Distance"]);
