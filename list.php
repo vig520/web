@@ -16,7 +16,7 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
         elseif ((isset($y)) && (isset($m)) && (isset($c))) {
         # Zde prikazy pro ISSET ROK, MESIC a ZEME
 		if ($c == "HOME") { # Pokud resime domaci behy
-                      	$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum, ROUND (Distance/1000, 1) AS Distance from tblRuns where YEAR(Date) = $y AND MONTH(Date) = $m and Home = 1;";  
+                      	$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum, ROUND (Distance/1000, 1) AS Distance from tblRuns where YEAR(convert_tz(Date, 'UTC','CET')) = $y AND MONTH(convert_tz(Date, 'UTC','CET')) = $m and Home = 1;";  
 			$DOTAZ = $link->query($QUERY);
                         echo "<h1>Výpis domácích běhů z ".$m." / ".$y."</h1>";
                 } # Konec domacich behu
@@ -24,7 +24,7 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 		$PREQUERY = "select Country from tblCountries where tblCountries.`Primary` = $c;";
 		$DOTAZ = $link->query($PREQUERY);
 		$RESULT = mysqli_fetch_array($DOTAZ);
-		$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum,  DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance from tblRuns, tblCountries where YEAR(Date) = $y AND MONTH(Date) = $m and tblCountries.Country = tblRuns.StartCountry and tblCountries.`Primary` = $c ORDER BY DSORT;";
+		$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum,  DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance from tblRuns, tblCountries where YEAR(convert_tz(Date, 'UTC','CET')) = $y AND MONTH(convert_tz(Date, 'UTC','CET')) = $m and tblCountries.Country = tblRuns.StartCountry and tblCountries.`Primary` = $c ORDER BY DSORT;";
 		$DOTAZ = $link->query($QUERY);
 		echo "<h1>Výpis běhů za ".$m." / ".$y." v lokalitě ".$RESULT["Country"]." </h1>";	
 		} #End of ELSE (jine nez domaci behy
@@ -38,14 +38,14 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 	elseif ((isset($y)) && (isset($m))) {
         # Zde prikazy pro ISSET ROK a ZEME
          echo "<h1>Výpis běhů za ".$m." / ".$y." </h1>";
-	$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance from tblRuns where YEAR(Date) = $y AND MONTH(Date) = $m ORDER BY DSORT;";
+	$QUERY = "select tblRuns.`Primary` AS Beh, DATE_FORMAT(convert_tz(Date, 'UTC','CET'), '%d. %m. %Y, %H:%i') AS Datum, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance from tblRuns where YEAR(convert_tz(Date, 'UTC','CET')) = $y AND MONTH(convert_tz(Date, 'UTC','CET')) = $m ORDER BY DSORT;";
 	$DOTAZ = $link->query($QUERY);
         } # Konec pro ISSET ROK a MESIC
         elseif (isset($y)) {
         # Zde bude kod pro ISSET ROK
 	echo "<h1>Výpis běhů za rok ".$y." </h1>";
 	$PREQUERY = "SET lc_time_names = 'cs_CZ';";
-	$QUERY = "select MONTHNAME(Date) AS JMesic, MONTH(Date) AS Mesic, COUNT(Date) AS Mnozstvi from tblRuns where YEAR (Date)= $y group by Mesic;";
+	$QUERY = "select MONTHNAME(convert_tz(Date, 'UTC','CET')) AS JMesic, MONTH(convert_tz(Date, 'UTC','CET')) AS Mesic, COUNT(convert_tz(Date, 'UTC','CET')) AS Mnozstvi from tblRuns where YEAR (convert_tz(Date, 'UTC','CET'))= $y group by Mesic;";
 	$link->query($PREQUERY);
 	$DOTAZ = $link->query($QUERY);	
 	} # Konec pro ISSET ROK
@@ -70,7 +70,7 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 	elseif (isset($c)) {
         # Zde bude kod pro ISSET ZEME
 		if ($c == "HOME") { # Pokud resime domaci behy
-                        $QUERY = "select MONTH(tblRuns.Date) AS Mesic, YEAR(tblRuns.Date) AS Rok, DATE_FORMAT(tblRuns.Date, '%m / %Y') AS Datum, COUNT(Date) AS Mnozstvi from tblRuns where Home = 1 group by Datum order by Rok, Mesic;";
+                        $QUERY = "select MONTH(convert_tz(tblRuns.Date, 'UTC','CET')) AS Mesic, YEAR(convert_tz(tblRuns.Date, 'UTC','CET')) AS Rok, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%m / %Y') AS Datum, COUNT(convert_tz(Date, 'UTC','CET')) AS Mnozstvi from tblRuns where Home = 1 group by Datum order by Rok, Mesic;";
                         $DOTAZ = $link->query($QUERY);
                         echo "<h1>Výpis domácích běhů </h1>";
                 } # Konec domacich behu
@@ -79,7 +79,7 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
        	 		$DOTAZ = $link->query($PREQUERY);
         		$RESULT = mysqli_fetch_array($DOTAZ);
         		echo "<h1>Výpis běhů v lokalitě ".$RESULT["Country"]." </h1>";
-       	 		$QUERY = "select MONTH(tblRuns.Date) AS Mesic, YEAR(tblRuns.Date) AS Rok, DATE_FORMAT(tblRuns.Date, '%m / %Y') AS Datum, COUNT(Date) AS Mnozstvi, tblCountries.Country AS Country from tblRuns, tblCountries where tblCountries.`Primary` = $c AND tblCountries.Country = tblRuns.StartCountry group by Datum order by Rok, Mesic;";
+       	 		$QUERY = "select MONTH(convert_tz(tblRuns.Date, 'UTC','CET')) AS Mesic, YEAR(convert_tz(tblRuns.Date, 'UTC','CET')) AS Rok, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%m / %Y') AS Datum, COUNT(convert_tz(Date, 'UTC','CET')) AS Mnozstvi, tblCountries.Country AS Country from tblRuns, tblCountries where tblCountries.`Primary` = $c AND tblCountries.Country = tblRuns.StartCountry group by Datum order by Rok, Mesic;";
         		$QUERY2 = "select distinct tblRuns.StartCity AS StartCity, tblCities.`Primary` AS Id, Count(Date) as Pocet from tblRuns, tblCountries, tblCities where tblRuns.StartCountry = tblCountries.Country and tblCountries.`Primary` = $c AND tblCities.City = tblRuns.StartCity group by StartCity;";
         		$DOTAZ = $link->query($QUERY);
 		} # end of else

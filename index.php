@@ -67,7 +67,7 @@ $VTERIN = $VTERINPOHODINACH % 60;
 	</div> 
 	<div id="obsah">
 	<?php
-	$YEARSQ = "select distinct YEAR(Date) AS Datum, COUNT(*) AS Pocet from tblRuns group by 1;";
+	$YEARSQ = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Datum, COUNT(*) AS Pocet from tblRuns group by 1;";
 	$YEARS1 = $link->query($YEARSQ);
 
 	$PLACESQ = "select tblCountries.`Primary` AS Cislo, tblCountries.Country from tblCountries;";
@@ -105,11 +105,12 @@ echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> 
 	    </table>
 	<?php
 
-	$query = "select ROUND(SUM(Distance/1000),2) AS ThisMonthDistance, Monthname(CURDATE()) AS Mesic from tblRuns where Year(Date) = Year(CURDATE()) and Month(Date) = Month(CURDATE());"; # Data za tento mesic 
+	$query = "select ROUND(SUM(Distance/1000),2) AS ThisMonthDistance, Monthname(CURDATE()) AS Mesic from tblRuns where Year(convert_tz(Date, 'UTC','CET')) = Year(CURDATE()) and Month(convert_tz(Date, 'UTC','CET')) = Month(CURDATE());"; # Data za tento mesic 
 	$DOTAZ1 = $link->query($query);
 	$DOTAZ1 = mysqli_fetch_array($DOTAZ1);
 
-	$query = "select ROUND(SUM(Distance/1000),2) AS LastMonthDistance, MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) AS MinulyMesic from tblRuns where Year(Date) = Year(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) and MONTHNAME(Date) = MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH));"; #Data za minuly mesic 
+
+	$query = "select ROUND(SUM(Distance/1000),2) AS LastMonthDistance, MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) AS MinulyMesic from tblRuns where Year(convert_tz(Date, 'UTC','CET')) = Year(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) and MONTHNAME(convert_tz(Date, 'UTC','CET')) = MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH));"; #Data za minuly mesic 
 	$DOTAZ2 = $link->query($query);
 	$DOTAZ2 = mysqli_fetch_array($DOTAZ2);
 
@@ -133,7 +134,7 @@ echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> 
 		$i = $i + $j;
 }
 	$POUT = ROUND($j / ($i / 100), 2); 
-	$query = "select DATE_FORMAT(Date, '%m/%Y') AS Mesic, SUM(Distance/1000) AS Vzdalenost from tblRuns group by Mesic order by Vzdalenost DESC LIMIT 1;";
+	$query = "select DATE_FORMAT(convert_tz(Date, 'UTC','CET'), '%m/%Y') AS Mesic, SUM(Distance/1000) AS Vzdalenost from tblRuns group by Mesic order by Vzdalenost DESC LIMIT 1;";
 	$DOTAZ = $link->query($query);
 	$DOTAZ = mysqli_fetch_array($DOTAZ);
 	?>
@@ -167,10 +168,10 @@ echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> 
 
 
 
-$STATSQ = "select distinct YEAR(Date) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, ROUND(SUM(Distance/1000)/COUNT(Distance), 2) AS AvgDistance, ROUND(SUM(Duration/3600), 2) AS Hours, SUM(Duration) AS SecForPace from tblRuns group by Rok;";
+$STATSQ = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, ROUND(SUM(Distance/1000)/COUNT(Distance), 2) AS AvgDistance, ROUND(SUM(Duration/3600), 2) AS Hours, SUM(Duration) AS SecForPace from tblRuns group by Rok;";
 $STATS1 = $link->query($STATSQ);
 
-$STATSQ2010 = "select distinct YEAR(Date) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, SUM(Duration) AS SecForPace from tblRuns where YEAR(Date) = 2010 AND StartAddress IS NOT NULL;";
+$STATSQ2010 = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, SUM(Duration) AS SecForPace from tblRuns where YEAR(Date) = 2010 AND StartAddress IS NOT NULL;";
 $STATS2010 = $link->query($STATSQ2010);
 $DOTAZ = mysqli_fetch_array($STATS2010);
 ?>
@@ -178,7 +179,7 @@ $DOTAZ = mysqli_fetch_array($STATS2010);
     </table>
 <table class="tabulkyvedlesebe" style="width:50%">
 <tbody>
-<tr> <th colspan="7"> Statistiky dle let </th> </tr>
+<tr> <th colspan="8"> Statistiky dle let </th> </tr>
 
 <?php
 $DATA = array();
