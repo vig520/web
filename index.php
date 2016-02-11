@@ -10,7 +10,7 @@
 <div id="kontejner">
 <div id="hlavicka">
 <?php
-
+setlocale(LC_TIME, "cs_CZ.UTF-8");
 # Pripojeni k databazi
 
 $link = mysqli_connect("localhost","tomas","simeck","dbRuns") or die("Error - nelze se pripojit k db " . mysqli_error($link));
@@ -18,20 +18,32 @@ mysqli_set_charset($link, "utf8");
 $PREQUERY = "SET lc_time_names = 'cs_CZ';";
 $link->query($PREQUERY);
 
-# Zjisteni celkove vzdalenosti
+# Nacteni statistickych dat
+$STATRESULT = $link->query("SELECT Nazev, Hodnota1 FROM tblStats");
+while ($row = mysqli_fetch_array($STATRESULT))
+{
+	if ($row[0] == "TotalDistance") {$TotalDistance = $row[1]; continue;}
+	if ($row[0] == "PocetBehu") {$PocetBehu = $row[1]; continue;}
+	if ($row[0] == "DobaInSec") {$DobaInSec = $row[1]; continue;}
+	if ($row[0] == "LastRun") {$LastRun = $row[1]; continue;}
+	if ($row[0] == "Home") {$Home = $row[1]; continue;}
+	if ($row[0] == "ThisMonthMileage") {$ThisMonthMileage = $row[1]; continue;}
+	if ($row[0] == "LastMonthMileage") {$LastMonthMileage = $row[1]; continue;}
+	if ($row[0] == "DniPoSobe") {$DniPoSobe = $row[1]; continue;}
+	if ($row[0] == "SerieKonci") {$SerieKonci = $row[1]; continue;}
+	if ($row[0] == "SerieZacina") {$SerieZacina = $row[1]; continue;}
+	if ($row[0] == "PrvniBehSerie") {$PrvniBehSerie = $row[1]; continue;}
+	if ($row[0] == "PosledniBehSerie") {$PosledniBehSerie = $row[1]; continue;}
+	if ($row[0] == "BehuDoma") {$BehuDoma = $row[1]; continue;}
+	if ($row[0] == "BehuJinde") {$BehuJinde = $row[1]; continue;}
+	if ($row[0] == "TopMesic") {$TopMesic = $row[1]; continue;}
+	if ($row[0] == "TopMesicKM") {$TopMesicKM = $row[1]; continue;}
+	if ($row[0] == "ThisMonthName") {$ThisMonthName = $row[1]; continue;}	
+	if ($row[0] == "LastMonthName") {$LastMonthName = $row[1]; continue;}
+} 
 
-$QUERY = "select ROUND(SUM(Distance)/1000, 2) AS TotalDistance, COUNT(tblRuns.`Primary`) AS Behu, ROUND(SUM(Duration)) AS Doba, MAX(tblRuns.`Primary`) AS Top from tblRuns;";
-$DOTAZ = $link->query($QUERY);
-$RESULT = mysqli_fetch_array($DOTAZ); 
-
-$DISTANCE = $RESULT["TotalDistance"];
-$RUNCOUNT = $RESULT["Behu"];
-$RUNTIME = $RESULT["Doba"];
-$TOPRUN = $RESULT["Top"];
-
-# Vysledek je $RUNTIME[0]
-$DNU = $RUNTIME / 86400;
-$VTERINPODNECH = $RUNTIME % 86400;
+$DNU = $DobaInSec / 86400;
+$VTERINPODNECH = $DobaInSec % 86400;
 $HODIN = $VTERINPODNECH / 3600;
 $VTERINPOHODINACH = $VTERINPODNECH % 3600;
 $MINUT = $VTERINPOHODINACH / 60;
@@ -56,23 +68,15 @@ $VTERIN = $VTERINPOHODINACH % 60;
 	# Konec vypoctu tempa
 	######################
 
-	$TEMPO = Pace($RUNTIME,$DISTANCE);
-	$SECS = number_format($RUNTIME, 0, '.', ' ');
+	$TEMPO = Pace($DobaInSec,$TotalDistance);
 	?>
-	<span style="color: #ffff33;"><b>Statistiky:</b> <?php echo 'Počet běhů: <font color="red">'.$RUNCOUNT.'</font>, celkem naběháno <font color="red">'.number_format($DISTANCE, 0, '.', ' ').' </font>kilometrů, celkem na trati<font color="red"> '.$SECS.' </font>vteřin, což je <font color="red">'.floor($DNU) .' </font>dní, <font color="red">'.floor($HODIN).' </font>hodin, <font color="red">'. floor($MINUT).' </font>minut, <font color="red">'.$VTERIN.' </font>vteřin, průměrné tempo: <font color="red">'.$TEMPO.'</font> min/km'; 
+	<span style="color: #ffff33;"><b>Statistiky:</b> <?php echo 'Počet běhů: <font color="red">'.number_format($PocetBehu, 0, '.', ' ').'</font>, celkem naběháno <font color="red">'.number_format($TotalDistance, 0, '.', ' ').' </font>kilometrů, celkem na trati<font color="red"> '.number_format($DobaInSec, 0, '.', ' ').' </font>vteřin, což je <font color="red">'.floor($DNU) .' </font>dní, <font color="red">'.floor($HODIN).' </font>hodin, <font color="red">'. floor($MINUT).' </font>minut, <font color="red">'.$VTERIN.' </font>vteřin, průměrné tempo: <font color="red">'.$TEMPO.'</font> min/km'; 
 	?>
 
 	     </span>
 	    <hr style="width: 100%; height: 2pt; color: yellow; margin-left: auto; margin-right: auto;">
 	</div> 
 	<div id="obsah">
-	<?php
-	$YEARSQ = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Datum, COUNT(*) AS Pocet from tblRuns group by 1;";
-	$YEARS1 = $link->query($YEARSQ);
-
-	$PLACESQ = "select tblCountries.`Primary` AS Cislo, tblCountries.Country from tblCountries;";
-	$PLACES1 = $link->query($PLACESQ);
-	?>
  <table class="hornitabulka">
               <tbody>
           <tr>
@@ -81,7 +85,7 @@ $VTERIN = $VTERINPOHODINACH % 60;
 		<tr> 
 		<td> <a href="list.php?s=ALL">Shoe tracker</a></td>
 <?php
-echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> ";
+echo "		<td> <a href=\"rundetail.php?run=".number_format($LastRun, 0, '.', '')."\">Poslední běh </a></td> ";
 ?>
 		<td> Poslední měsíc </td>
 	</tr>
@@ -94,49 +98,24 @@ echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> 
 		  </th>
 		</tr>
 	<?php
-	while ($ROKY = mysqli_fetch_array($YEARS1)) {
-	   echo "       <tr>";
-	   echo "<td><a href=\"list.php?y=".$ROKY["Datum"]."\">". $ROKY["Datum"]. "</a> (".$ROKY["Pocet"].")<br>";
-	   echo "      </td>";
-	   echo "    </tr>";
+
+mysqli_data_seek($STATRESULT, 0);
+$ROKY=array();
+while ($row = mysqli_fetch_array($STATRESULT))
+{
+		if (strpos($row[0], 'BehuRoku') !== false) {
+		$ROK = substr($row[0], -4, 4);
+		array_push($ROKY,$ROK);
+	   	echo "       <tr>";
+	   	echo "<td><a href=\"list.php?y=".$ROK."\">". $ROK. "</a> (".$row[1].")<br>";
+	   	echo "      </td>";
+	   	echo "    </tr>"; 
+		}
+
 	}
-	?>
-	      </tbody>
-	    </table>
-	<?php
-
-	$query = "select ROUND(SUM(Distance/1000),2) AS ThisMonthDistance, Monthname(CURDATE()) AS Mesic from tblRuns where Year(convert_tz(Date, 'UTC','CET')) = Year(CURDATE()) and Month(convert_tz(Date, 'UTC','CET')) = Month(CURDATE());"; # Data za tento mesic 
-	$DOTAZ1 = $link->query($query);
-	$DOTAZ1 = mysqli_fetch_array($DOTAZ1);
-
-
-	$query = "select ROUND(SUM(Distance/1000),2) AS LastMonthDistance, MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) AS MinulyMesic from tblRuns where Year(convert_tz(Date, 'UTC','CET')) = Year(DATE_ADD(CURDATE(), INTERVAL -1 MONTH)) and MONTHNAME(convert_tz(Date, 'UTC','CET')) = MONTHNAME(DATE_ADD(CURDATE(), INTERVAL -1 MONTH));"; #Data za minuly mesic 
-	$DOTAZ2 = $link->query($query);
-	$DOTAZ2 = mysqli_fetch_array($DOTAZ2);
-
-	$STREAKQ1 = "SET @nextDate = CURRENT_DATE;";
-	$STREAKQ2 = "SET @RowNum = 1;"; 
-	$STREAKQ3 = "SELECT  @RowNum := IF(@NextDate = Date(tblRuns.Date), @RowNum + 1, 1) AS RowNumber, DATE_FORMAT((tblRuns.Date), '%d. %m. %Y') AS Datum, tblRuns.`Primary`, DATE_ADD(Date(tblRuns.Date), INTERVAL (@RowNum*(-1))+1 DAY) AS StartDate, @NextDate := DATE_ADD(Date(tblRuns.Date), INTERVAL 1 DAY) AS NextDate FROM tblRuns ORDER BY RowNumber DESC LIMIT 1;";
-
-	$STREAK1 = $link->query($STREAKQ1);
-	$STREAK2 = $link->query($STREAKQ2);
-	$STREAK3 = $link->query($STREAKQ3);
-	$STREAK3 = mysqli_fetch_array($STREAK3);
-
-	$STREAKQ4 = "select tblRuns.`Primary`, DATE_FORMAT((tblRuns.Date), '%d. %m. %Y') from tblRuns where Date(tblRuns.Date) = '$STREAK3[3]';";
-	$STREAK4 = $link->query($STREAKQ4);
-	$STREAK4 = mysqli_fetch_array($STREAK4);
-	$PERCENTQ = "select IFNULL(Home, 2) AS Status, COUNT(IFNULL(Home, 2)) AS Pocet from tblRuns where IFNULL(StartAddress, 2) <> 2 group by Home order by Status;";
-	$PERCENTR = $link->query($PERCENTQ);
-	$i = 0;
-	while ($PERCENT = mysqli_fetch_array($PERCENTR))	 {
-		$j = $PERCENT["Pocet"];
-		$i = $i + $j;
-}
-	$POUT = ROUND($j / ($i / 100), 2); 
-	$query = "select DATE_FORMAT(convert_tz(Date, 'UTC','CET'), '%m/%Y') AS Mesic, SUM(Distance/1000) AS Vzdalenost from tblRuns group by Mesic order by Vzdalenost DESC LIMIT 1;";
-	$DOTAZ = $link->query($query);
-	$DOTAZ = mysqli_fetch_array($DOTAZ);
+	echo "      </tbody>";
+	echo "    </table>";
+	$POUT = ROUND($BehuJinde / (($BehuDoma + $BehuJinde) / 100), 2); 
 	?>
 
 	<table class="tabulkyvedlesebe">
@@ -147,33 +126,24 @@ echo "		<td> <a href=\"rundetail.php?run=".$TOPRUN."\">Poslední běh </a></td> 
 		</tr>
 	<?php
 		echo "<tr><td>";
-		echo "Za tento měsíc (".$DOTAZ1[1].") naběháno ".$DOTAZ1[0]."km";
+		echo "Za tento měsíc (".strftime('%B', mktime(0,0,0,number_format($ThisMonthName, 0, '.', ''))).") naběháno ".$ThisMonthMileage."km";
 		echo "</td></tr>";
 		echo "<tr><td>";
-		echo "Za minulý měsíc (".$DOTAZ2[1].") naběháno ".$DOTAZ2[0]."km";
+		echo "Za minulý měsíc (".strftime('%B', mktime(0,0,0,number_format($LastMonthName, 0, '.', ''))).") naběháno ".$LastMonthMileage."km";
 		echo "</td></tr>";
 		echo "<tr><td>";
-		echo "Nejvíce běhacích dnů po sobě: ".$STREAK3[0];
+		echo "Nejvíce běhacích dnů po sobě: ".number_format($DniPoSobe, 0, '.', '');
 		echo "</td></tr>";
 		echo "<tr><td>";
-		echo "od <a href=\"rundetail.php?run=".$STREAK4[0]."\">".$STREAK4[1]."</a> do <a href=\"rundetail.php?run=".$STREAK3[2]."\">".$STREAK3[1]."</a>";
+		echo "od <a href=\"rundetail.php?run=".$PrvniBehSerie."\">".$SerieZacina."</a> do <a href=\"rundetail.php?run=".$PosledniBehSerie."\">".$SerieKonci."</a>";
         	echo "</td></tr>";
 		echo "<tr><td>";
                 echo 100-$POUT."% běhů doma, ".$POUT."% běhů jinde";
         	echo "</td></tr>";
 		echo "<tr><td>";
-                echo "Nejvíc měsíčně: ".ROUND($DOTAZ["Vzdalenost"], 1)." km za ".$DOTAZ["Mesic"];
+                echo "Nejvíc měsíčně: ".ROUND($TopMesicKM, 1)." km za ".$TopMesic;
                 echo "</td></tr>";
 
-
-
-
-$STATSQ = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, ROUND(SUM(Distance/1000)/COUNT(Distance), 2) AS AvgDistance, ROUND(SUM(Duration/3600), 2) AS Hours, SUM(Duration) AS SecForPace from tblRuns group by Rok;";
-$STATS1 = $link->query($STATSQ);
-
-$STATSQ2010 = "select distinct YEAR(convert_tz(Date, 'UTC','CET')) AS Rok, ROUND(SUM(Distance/1000), 2) AS Distance, SUM(Duration) AS SecForPace from tblRuns where YEAR(Date) = 2010 AND StartAddress IS NOT NULL;";
-$STATS2010 = $link->query($STATSQ2010);
-$DOTAZ = mysqli_fetch_array($STATS2010);
 ?>
  </tbody>
     </table>
@@ -182,42 +152,66 @@ $DOTAZ = mysqli_fetch_array($STATS2010);
 <tr> <th colspan="8"> Statistiky dle let </th> </tr>
 
 <?php
-$DATA = array();
-#$STATS = mysqli_fetch_array($STATS1);
-while ($ROW = $STATS1->fetch_assoc())
-{
-	$DATA[] = $ROW;
-}
-$colNames = array_keys(reset($DATA));
+
 echo "<tr><td style=\"width:30%\"></td>";
-foreach ($DATA as $ROK) 
-{
-	echo "<td style=\"width:10%\"> ".$ROK["Rok"]."</td>";
+
+
+mysqli_data_seek($STATRESULT, 0);
+while ($row = mysqli_fetch_array($STATRESULT)) {
+	if (strpos($row[0], 'BehuRoku') !== false) {
+                $ROK = substr($row[0], -4, 4);
+		echo "<td style=\"width:10%\"> ".$ROK."</td>";
 }
+}
+
 echo "</tr><tr><td style=\"width:30%\">Celkem kilometrů</td>";
-foreach ($DATA as $KM)
-{
-        echo "<td style=\"width:10%\"> ".$KM["Distance"]."</td>";
-}
-echo "</tr><tr><td style=\"width:30%\">Celkem hodin</td>";
-foreach ($DATA as $HODIN)
-{
-        echo "<td style=\"width:10%\"> ".$HODIN["Hours"]."</td>";
-}
-echo "</tr><tr><td style=\"width:30%\">Průměrná délka běhu</td>";
-foreach ($DATA as $DELKA)
-{
-        echo "<td style=\"width:10%\"> ".$DELKA["AvgDistance"]."</td>";
-}
-echo "</tr><tr><td style=\"width:30%\">Průměrné tempo</td>";
-foreach ($DATA as $SEC)
-{
-        $TEMPO = Pace($SEC["SecForPace"],$SEC["Distance"]);
-	if ($SEC["Rok"] == "2010") {
-		$TEMPO = Pace($DOTAZ["SecForPace"], $DOTAZ["Distance"]);			
+
+mysqli_data_seek($STATRESULT, 0);
+while ($row = mysqli_fetch_array($STATRESULT)) {
+        if (strpos($row[0], '.Distance') !== false) {
+                $ROK = substr($row[0], 0, 4);
+		echo "<td style=\"width:10%\"> ".$row[1]."</td>";
 	}
-	echo "<td style=\"width:10%\"> ".$TEMPO."</td>";
 }
+
+echo "</tr><tr><td style=\"width:30%\">Celkem hodin</td>";
+
+mysqli_data_seek($STATRESULT, 0);
+while ($row = mysqli_fetch_array($STATRESULT)) {
+        if (strpos($row[0], '.Hours') !== false) {
+                $ROK = substr($row[0], 0, 4);
+                echo "<td style=\"width:10%\"> ".$row[1]."</td>";
+        }
+}
+
+echo "</tr><tr><td style=\"width:30%\">Průměrná délka běhu</td>";
+
+mysqli_data_seek($STATRESULT, 0);
+while ($row = mysqli_fetch_array($STATRESULT)) {
+        if (strpos($row[0], '.AvgDistance') !== false) {
+                $ROK = substr($row[0], 0, 4);
+                echo "<td style=\"width:10%\"> ".$row[1]."</td>";
+        }
+}
+
+echo "</tr><tr><td style=\"width:30%\">Průměrné tempo</td>";
+
+for ($x=0; $x < count($ROKY); $x++) {
+	mysqli_data_seek($STATRESULT, 0);
+	while ($row = mysqli_fetch_array($STATRESULT)) {
+		if ($row[0] == $ROKY[$x].".Distance") $DistanceZaRok = $row[1];
+		if ($row[0] == $ROKY[$x].".SecForPace")  {
+			$TEMPO = Pace($row[1], $DistanceZaRok);
+#  Cast behu roku 2010 byla bez GPS dat, cili manualni korekce"
+			if ($ROKY[$x] == "2010") $TEMPO = "5,25";
+#  Konec manualni korekce
+			}
+
+}
+echo "<td style=\"width:10%\"> ".$TEMPO."</td>";
+}
+
+
 echo "</tr>";
 
 ?>
@@ -230,26 +224,29 @@ echo "</tr>";
           </th>
         </tr>
 <?php
-while ($PLACES = mysqli_fetch_array($PLACES1)) {
-	$COUNTQ = "select count(StartCountry) AS Cislo from tblRuns where tblRuns.StartCountry like \"".$PLACES["Country"]."\";";
-$COUNT1 = $link->query($COUNTQ);
-	$HOMEQ = "select count(Home) as Home from tblRuns where Home = 1;";
-	$HOMEQ = $link->query($HOMEQ);
-	$HOME = mysqli_fetch_array($HOMEQ);
-	while ($COUNT = mysqli_fetch_array($COUNT1)) {	
-   echo "       <tr>";
-   
-	if ($PLACES["Cislo"] == "1") { # DOMA section 
-		echo "<td><a href=\"list.php?c=".$PLACES["Cislo"]."\">". $PLACES["Country"]."</a> (".$COUNT["Cislo"]."), z toho <a href=\"list.php?c=HOME\">doma</a> ".$HOME["Home"];
-  		 echo "</td>";
-  		 echo "</tr>";
-} # end of DOMA section 
+mysqli_data_seek($STATRESULT, 0);
+while ($row = mysqli_fetch_array($STATRESULT)) {
+	if (strpos($row[0], 'Zeme.') !== false)	 {
+		$DruhaTecka = strpos($row[0], '.', 5);
+		$Zeme = substr($row[0], 5, $DruhaTecka -5);
+		$CountryID = substr($row[0], $DruhaTecka+1);
+		echo "       <tr>";
+		if ($CountryID == "1") { # DOMA section
+			echo "<td><a href=\"list.php?c=".$CountryID."\">". $Zeme."</a> (".$row[1]."), z toho <a href=\"list.php?c=HOME\">doma</a> ".$Home;
+			echo "</td>";
+			echo "</tr>";		
+		} 
 else {
-	echo "<td><a href=\"list.php?c=".$PLACES["Cislo"]."\">". $PLACES["Country"]."</a> (".$COUNT["Cislo"].")";
+			echo "<td><a href=\"list.php?c=".$CountryID."\">". $Zeme."</a> (".$row[1].")";
    echo "      </td>";
    echo "    </tr>";
-} # end of else
-}}
+		
+		}
+		
+	}	
+
+}
+
 ?>
 
      </tbody>
