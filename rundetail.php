@@ -70,6 +70,8 @@ $query = mysqli_query($dbh,"SELECT Latitude, Longitude FROM tblWaypoints WHERE B
 <?php
 $link = mysqli_connect("localhost","tomas","simeck","dbRuns") or die("Error - nelze se pripojit k db " . mysqli_error($link));
 mysqli_set_charset($link, "utf8");
+$PREQUERY = "SET lc_time_names = 'cs_CZ';";
+$link->query($PREQUERY);
 
 # Pridavani bot k behu
 if (isset($addShoes)) {
@@ -79,7 +81,7 @@ if (isset($addShoes)) {
 }
 # Konec pridavani bot k behu
 
-$QUERY = "select  DATE_FORMAT((convert_tz(Date, 'UTC','CET')), '%d. %m. %Y, %H:%i') AS Datum, ROUND(Distance/1000,2) AS Distance, SEC_TO_TIME(Duration) AS Time, Duration, StartAddress, FinishAddress, AvgHeartRate, Shoes from tblRuns WHERE tblRuns.`Primary` = $run;";
+$QUERY = "select  LOWER(DATE_FORMAT((convert_tz(Date, 'UTC','CET')), '%W %d. %m. %Y, %H:%i')) AS Datum, ROUND(Distance/1000,2) AS Distance, SEC_TO_TIME(Duration) AS Time, Duration, StartAddress, FinishAddress, AvgHeartRate, Shoes from tblRuns WHERE tblRuns.`Primary` = $run;";
 
 $DOTAZ = $link->query($QUERY);
 $RESULT = mysqli_fetch_array($DOTAZ);
