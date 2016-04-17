@@ -12,6 +12,10 @@ extract($_GET);
 $link = mysqli_connect("localhost","tomas","simeck","dbRuns") or die("Error - nelze se pripojit k db " . mysqli_error($link));
 mysqli_set_charset($link, "utf8");
 
+$PREQUERY = "SET lc_time_names = 'cs_CZ';";
+$link->query($PREQUERY);
+
+
 if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
         elseif ((isset($y)) && (isset($m)) && (isset($c))) {
         # Zde prikazy pro ISSET ROK, MESIC a ZEME
@@ -64,7 +68,7 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 		$QUERY = "select tblRuns.`Primary` AS Beh, convert_tz(tblRuns.Date, 'UTC','CET') AS Datum, ROUND (Distance/1000, 1) AS Distance, tblRuns.StartCity from tblRuns, tblCountries where StartCity=\"0\" and StartCountry = tblCountries.Country and tblCountries.`Primary` = $c;";
 	}
 	else {
-		$QUERY = "select tblRuns.`Primary` AS Beh, convert_tz(tblRuns.Date, 'UTC','CET') AS Datum, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance, tblRuns.StartCity from tblRuns, tblCities where tblRuns.StartCity = tblCities.City AND tblCities.`Primary` = $t ORDER BY DSORT;"; }
+		$QUERY = "select tblRuns.`Primary` AS Beh, LOWER(DATE_FORMAT((convert_tz(Date, 'UTC','CET')), '%W %d. %m. %Y, %H:%i')) AS Datum, DATE_FORMAT(convert_tz(tblRuns.Date, 'UTC','CET'), '%Y%m%d%H%i') AS DSORT, ROUND (Distance/1000, 1) AS Distance, tblRuns.StartCity from tblRuns, tblCities where tblRuns.StartCity = tblCities.City AND tblCities.`Primary` = $t ORDER BY DSORT;"; }
 		$DOTAZ = $link->query($QUERY);	
 		} # Konec kodu pro ISSET Mesto
 	elseif (isset($c)) {
