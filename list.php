@@ -93,6 +93,8 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 			echo "<h1>Shoe tracker </h1>";
 			$PREQUERY = "select tblShoes.Shoes AS Bota, ROUND(SUM(tblRuns.Distance/1000)+tblShoes.Mileage, 1) AS Nabehano, tblRuns.Shoes AS Id from tblShoes, tblRuns where tblRuns.Shoes = tblShoes.`Primary` AND DATE(tblRuns.Date) > '2015-02-22' AND tblShoes.Active = 1 group by tblShoes.Shoes order by Nabehano DESC;";
 			$DOTAZ = $link->query($PREQUERY);
+			$PREQUERY = "select tblShoes.Shoes AS Bota, ROUND(SUM(tblRuns.Distance/1000)+tblShoes.Mileage, 1) AS Nabehano, tblRuns.Shoes AS Id from tblShoes, tblRuns where tblRuns.Shoes = tblShoes.`Primary` AND DATE(tblRuns.Date) > '2015-02-22' AND tblShoes.Active = 0 group by tblShoes.Shoes order by Nabehano DESC;";
+			 $DOTAZ2 = $link->query($PREQUERY);
 		} # End of ALL SHOES
 		else { 
 			$PREQUERY = "select Shoes from tblShoes where tblShoes.`Primary` = $s;";
@@ -170,10 +172,18 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 		if ($s == "ALL") {
 			echo "<div class=\"centered\">";
                         echo "<table class=\"tabulkavypis\"><tbody> ";
-                        echo "<tr><th colspan=2>Kilometráž bot</th></tr>";
+                        echo "<tr><th colspan=2>Kilometráž bot (aktivních)</th></tr>";
 			while ($RESULT = mysqli_fetch_array($DOTAZ)) {
 				echo "<tr><td><a href=\"list.php?s=".$RESULT["Id"]."\">".$RESULT["Bota"]."</a></td><td>".$RESULT["Nabehano"]." km</td></tr>"; 
 			} # End of while
+			 echo "</tbody></table></div>";
+			 echo "<div class=\"centered\">";
+			  echo "<table class=\"tabulkavypis\"><tbody> ";
+			echo "<tr><th colspan=2>Kilometráž bot (vyřazených)</th></tr>";
+                        while ($RESULT = mysqli_fetch_array($DOTAZ2)) {
+                                echo "<tr><td><a href=\"list.php?s=".$RESULT["Id"]."\">".$RESULT["Bota"]."</a></td><td>".$RESULT["Nabehano"]." km</td></tr>";
+                        } # End of while
+                         echo "</tbody></table> </div>";
 		} #End of ALL SHOES
 		else {
 			echo "<div class=\"centered\">";
@@ -182,7 +192,8 @@ if (empty($_GET)) {$TEXT="Nic k zobrazeni";}
 			while ($RESULT = mysqli_fetch_array($DOTAZ)) {
 				echo "<tr><td><a href=\"rundetail.php?run=".$RESULT["Beh"]."\"> ".$RESULT["Datum"]."</a>, ".$RESULT["Distance"]." km</td></tr>";	
 				} #End of while
-			echo "</tbody></table> </div>";
+			echo "</tbody></table></div>";
+
 			} # End of else
 } # Konec kodu pro ISSET SHOES
 
