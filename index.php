@@ -149,11 +149,11 @@ while ($row = mysqli_fetch_array($STATRESULT))
     </table>
 <table class="tabulkyvedlesebe" style="width:50%">
 <tbody>
-<tr> <th colspan="8"> Statistiky dle let </th> </tr>
+<tr> <th colspan="9"> Statistiky dle let </th> </tr>
 
 <?php
 
-echo "<tr><td style=\"width:30%\"></td>";
+echo "<tr><td style=\"width:20%\"></td>";
 
 
 mysqli_data_seek($STATRESULT, 0);
@@ -164,7 +164,7 @@ while ($row = mysqli_fetch_array($STATRESULT)) {
 }
 }
 
-echo "</tr><tr><td style=\"width:30%\">Celkem kilometrů</td>";
+echo "</tr><tr><td style=\"width:20%\">Celkem kilometrů</td>";
 
 mysqli_data_seek($STATRESULT, 0);
 while ($row = mysqli_fetch_array($STATRESULT)) {
@@ -174,7 +174,7 @@ while ($row = mysqli_fetch_array($STATRESULT)) {
 	}
 }
 
-echo "</tr><tr><td style=\"width:30%\">Celkem hodin</td>";
+echo "</tr><tr><td style=\"width:20%\">Celkem hodin</td>";
 
 mysqli_data_seek($STATRESULT, 0);
 while ($row = mysqli_fetch_array($STATRESULT)) {
@@ -184,7 +184,7 @@ while ($row = mysqli_fetch_array($STATRESULT)) {
         }
 }
 
-echo "</tr><tr><td style=\"width:30%\">Průměrná délka běhu</td>";
+echo "</tr><tr><td style=\"width:20%\">Průměrná délka běhu</td>";
 
 mysqli_data_seek($STATRESULT, 0);
 while ($row = mysqli_fetch_array($STATRESULT)) {
@@ -194,7 +194,7 @@ while ($row = mysqli_fetch_array($STATRESULT)) {
         }
 }
 
-echo "</tr><tr><td style=\"width:30%\">Průměrné tempo</td>";
+echo "</tr><tr><td style=\"width:20%\">Průměrné tempo</td>";
 
 for ($x=0; $x < count($ROKY); $x++) {
 	mysqli_data_seek($STATRESULT, 0);
